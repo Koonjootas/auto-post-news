@@ -1,8 +1,8 @@
-
-import requests
 import os
+from together import Together
 
-TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
+# Инициализация клиента
+client = Together(api_key=os.getenv("TOGETHER_API_KEY"))
 
 def rewrite_news(title, summary, link):
     prompt = f"""Ты пишешь посты для Telegram-канала @FuturePulse — ежедневно один научный инсайт.
@@ -18,18 +18,14 @@ def rewrite_news(title, summary, link):
 - Заверши практической ценностью
 - Используй Markdown"""
 
-    response = requests.post(
-        "https://api.together.xyz/inference",
-        headers={
-            "Authorization": f"Bearer {TOGETHER_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "meta-llama/Llama-3-70B-Instruct",
-            "prompt": prompt,
-            "max_tokens": 800,
-            "temperature": 0.7
-        }
+    response = client.chat.completions.create(
+        model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
     )
-    response.raise_for_status()
-    return response.json()["output"].strip()
+
+    return response.choices[0].message.content.strip()
