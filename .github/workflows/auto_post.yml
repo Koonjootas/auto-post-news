@@ -5,6 +5,9 @@ on:
     - cron: "0 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   post-news:
     runs-on: ubuntu-latest
@@ -18,15 +21,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Restore sent_log.json from cache
-        id: cache-restore
-        uses: actions/cache@v3
-        with:
-          path: sent_log.json
-          key: sent-log-cache-v1
-          restore-keys: |
-            sent-log-cache-
-
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -37,9 +31,10 @@ jobs:
           TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
         run: python src/main.py
 
-      - name: Save updated sent_log.json to cache
-        if: steps.cache-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        with:
-          path: sent_log.json
-          key: sent-log-cache-v1-${{ github.run_id }}
+      - name: Commit and push updated sent_log.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add sent_log.json
+          git commit -m "Update sent_log.json" || echo "No changes"
+          git push
