@@ -23,6 +23,8 @@ jobs:
         with:
           path: sent_log.json
           key: sent-log-cache-v1
+          restore-keys: |
+            sent-log-cache-
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -38,4 +40,4 @@ jobs:
         uses: actions/cache/save@v3
         with:
           path: sent_log.json
-          key: sent-log-cache-v1
+          key: sent-log-cache-v1-${{ github.run_id }}
