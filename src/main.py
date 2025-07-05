@@ -1,4 +1,3 @@
-
 import json
 import os
 from rss_reader import read_rss_sources, fetch_news
@@ -23,11 +22,13 @@ def main():
     for url in read_rss_sources():
         for item in fetch_news(url):
             if item["link"] in sent_links:
+                print(f"🛑 Пропущено (дубль): {item['link']}")
                 continue
 
             try:
                 rewritten = rewrite_news(item["title"], item["summary"], item["link"])
                 send_telegram_message(rewritten, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
+                print(f"✅ Отправлено: {item['link']}")
                 sent_links.add(item["link"])
             except Exception as e:
                 print(f"❌ Ошибка: {e}")
