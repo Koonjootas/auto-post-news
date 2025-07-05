@@ -19,6 +19,7 @@ jobs:
           python-version: "3.11"
 
       - name: Restore sent_log.json from cache
+        id: cache-restore
         uses: actions/cache@v3
         with:
           path: sent_log.json
@@ -37,6 +38,7 @@ jobs:
         run: python src/main.py
 
       - name: Save updated sent_log.json to cache
+        if: steps.cache-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
           path: sent_log.json
