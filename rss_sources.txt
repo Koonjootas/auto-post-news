@@ -1,3 +1,4 @@
 https://www.sciencedaily.com/rss/top.xml
 https://feeds.nature.com/nature/rss/current
 https://www.newscientist.com/feed/home/
+https://home.cern/news/news/rss.xml
