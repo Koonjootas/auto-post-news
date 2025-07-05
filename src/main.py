@@ -29,14 +29,14 @@ def main():
                 continue
 
             try:
-                # Генерация текста
-                rewritten = rewrite_news(item["summary"])
+                # Генерация заголовка и текста
+                headline, body = rewrite_news(item["title"], item["summary"])
 
-                # Отправка поста с изображением
+                # Отправка поста с изображением и заголовком-ссылкой
                 send_telegram_message_with_photo(
-                    title=item["title"],
+                    title=headline,
                     link=item["link"],
-                    text=rewritten,
+                    text=body,
                     image_url=item.get("image") or FALLBACK_IMAGE,
                     token=TELEGRAM_TOKEN,
                     chat_id=TELEGRAM_CHAT_ID
