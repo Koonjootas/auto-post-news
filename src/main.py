@@ -16,8 +16,11 @@ if os.path.exists(SENT_LOG):
 else:
     sent_links = set()
 
+print(f"📥 Загружено {len(sent_links)} ссылок из лога")
+
 # Сохранение лога
 def save_log():
+    print(f"💾 Сохраняем {len(sent_links)} ссылок в sent_log.json")
     with open(SENT_LOG, "w") as f:
         json.dump(list(sent_links), f)
 
