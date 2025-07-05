@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Restore sent_log cache
+      - name: Restore sent_log.json from cache
         uses: actions/cache@v3
         with:
           path: sent_log.json
@@ -33,3 +33,9 @@ jobs:
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
           TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
         run: python src/main.py
+
+      - name: Save updated sent_log.json to cache
+        uses: actions/cache/save@v3
+        with:
+          path: sent_log.json
+          key: sent-log-cache-v1
