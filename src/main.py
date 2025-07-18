@@ -1,56 +1,37 @@
+# ✅ main.py — с кэшированием и отправкой постов с кнопками в черновик
 import json
 import os
-import requests
 from rss_reader import read_rss_sources, fetch_news
 from rewrite import rewrite_news
-from topic_selector import extract_image_topic
-from telegram_sender import send_telegram_message_with_photo, send_telegram_message_without_photo
+from telegram_sender import send_post_with_buttons
 
 TELEGRAM_TOKEN = os.getenv("TG_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TG_CHAT_ID")
-UNSPLASH_ACCESS_KEY = "7UmMOEVE5pNZxC6Mu1R6ZXvpbOyuAKL41-yUfrtoMdQ"
-
+TELEGRAM_CHAT_ID = os.getenv("TG_CHAT_ID_DRAFT")  # Всегда отправляем в черновик
 SENT_LOG = "sent_log.json"
+CACHE_PATH = "cache.json"
+FALLBACK_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png"
 
-# Загрузка лога
+# Загрузка лога отправленных ссылок
 if os.path.exists(SENT_LOG):
     with open(SENT_LOG, "r") as f:
         sent_links = set(json.load(f))
 else:
     sent_links = set()
 
-print(f"📅 Загружено {len(sent_links)} ссылок из лога")
+# Загрузка кэша для callback-бота
+if os.path.exists(CACHE_PATH):
+    with open(CACHE_PATH, "r") as f:
+        cache = json.load(f)
+else:
+    cache = {}
 
 def save_log():
-    print(f"📏 Сохраняем {len(sent_links)} ссылок в sent_log.json")
     with open(SENT_LOG, "w") as f:
         json.dump(list(sent_links), f)
 
-# 💡 Получение URL фото с Unsplash
-
-def get_unsplash_image_url(query):
-    url = "https://api.unsplash.com/search/photos"
-    params = {
-        "query": query,
-        "orientation": "landscape",
-        "per_page": 1,
-        "client_id": UNSPLASH_ACCESS_KEY,
-    }
-
-    try:
-        response = requests.get(url, params=params, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-        if data["results"]:
-            return data["results"][0]["urls"]["regular"]
-        else:
-            print("⚠️ Unsplash: нет результатов")
-            return None
-    except Exception as e:
-        print(f"❌ Unsplash API error: {e}")
-        return None
-
-# 🧬 Основной цикл
+def save_cache():
+    with open(CACHE_PATH, "w") as f:
+        json.dump(cache, f)
 
 def main():
     for url in read_rss_sources():
@@ -61,40 +42,34 @@ def main():
 
             try:
                 headline, body = rewrite_news(item["title"], item["summary"])
+                image = item.get("image") or FALLBACK_IMAGE
 
-                # Ищем фото
-                image_url = item.get("image")
-                if not image_url:
-                    topic = extract_image_topic(item["title"], item["summary"])
-                    if topic:
-                        image_url = get_unsplash_image_url(topic)
+                # Отправка с кнопками в черновик
+                send_post_with_buttons(
+                    title=headline,
+                    link=item["link"],
+                    text=body,
+                    image_url=image,
+                    token=TELEGRAM_TOKEN,
+                    chat_id=TELEGRAM_CHAT_ID
+                )
 
-                # Отправка
-                if image_url:
-                    send_telegram_message_with_photo(
-                        title=headline,
-                        link=item["link"],
-                        text=body,
-                        image_url=image_url,
-                        token=TELEGRAM_TOKEN,
-                        chat_id=TELEGRAM_CHAT_ID
-                    )
-                else:
-                    send_telegram_message_without_photo(
-                        title=headline,
-                        link=item["link"],
-                        text=body,
-                        token=TELEGRAM_TOKEN,
-                        chat_id=TELEGRAM_CHAT_ID
-                    )
+                # Обновление логов и кэша
+                sent_links.add(item["link"])
+                cache[item["link"]] = {
+                    "title": item["title"],
+                    "summary": item["summary"],
+                    "body": body,
+                    "image": image
+                }
 
                 print(f"✅ Отправлено: {item['link']}")
-                sent_links.add(item["link"])
 
             except Exception as e:
                 print(f"❌ Ошибка: {e}")
 
     save_log()
+    save_cache()
 
 if __name__ == "__main__":
     main()
