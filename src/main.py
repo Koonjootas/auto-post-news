@@ -73,5 +73,42 @@ def main():
     save_log()
     save_cache()
 
+if os.getenv("TEST_MODE") == "1":
+    from telegram_sender import send_post_with_buttons
+
+    test_link = "https://example.com/test-news"
+    test_title = "Учёные открыли новую форму воды"
+    test_summary = "Исследование показало, что при экстремальных условиях вода может вести себя как стекло."
+    test_body = "Новая форма воды, похожая на стекло, была обнаружена в лабораторных условиях. Это открытие может изменить наши представления о жидкостях при низких температурах и повлиять на технологии хранения данных."
+    test_image = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png"
+
+    # Добавим в кэш
+    if os.path.exists("cache.json"):
+        with open("cache.json", "r") as f:
+            cache = json.load(f)
+    else:
+        cache = {}
+
+    cache[test_link] = {
+        "title": test_title,
+        "summary": test_summary,
+        "body": test_body,
+        "image": test_image
+    }
+
+    with open("cache.json", "w") as f:
+        json.dump(cache, f)
+
+    # Отправим пост в черновик с кнопками
+    send_post_with_buttons(
+        title=test_title,
+        link=test_link,
+        text=test_body,
+        image_url=test_image,
+        token=TELEGRAM_TOKEN,
+        chat_id=TELEGRAM_CHAT_ID
+    )
+
+
 if __name__ == "__main__":
     main()
