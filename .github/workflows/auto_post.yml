@@ -26,9 +26,10 @@ jobs:
 
       - name: Run main.py
         env:
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT_ID_DRAFT: ${{ secrets.TG_CHAT_ID_DRAFT }}
+          TG_TOKEN: ${{ secrets.BOT_TOKEN }}
+          TG_CHAT_ID_DRAFT: ${{ secrets.DRAFT_CHAT_ID }}
           TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+
         run: python src/main.py
 
       - name: Commit and push updated sent_log.json and cache.json

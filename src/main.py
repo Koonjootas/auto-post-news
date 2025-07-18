@@ -5,8 +5,10 @@ from rss_reader import read_rss_sources, fetch_news
 from rewrite import rewrite_news
 from telegram_sender import send_post_with_buttons
 
-TELEGRAM_TOKEN = os.getenv("TG_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TG_CHAT_ID_DRAFT")  # Всегда отправляем в черновик
+TG_TOKEN = os.getenv("BOT_TOKEN")
+TG_CHAT_ID_DRAFT = os.getenv("DRAFT_CHAT_ID")
+TG_CHAT_ID_MAIN = os.getenv("MAIN_CHANNEL_ID")
+  # Всегда отправляем в черновик
 SENT_LOG = "sent_log.json"
 CACHE_PATH = "cache.json"
 FALLBACK_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png"
