@@ -34,3 +34,36 @@ def rewrite_news(title, summary):
         headline, body = result, ""
 
     return headline.strip(), body.strip()
+
+
+def rewrite_news_with_alt_prompt(title, summary):
+    prompt = f"""Сделай рерайт научной новости с акцентом на интригу, перспективу и вызов — как будто это пост для Telegram-канала про будущее и технологии. Не пиши уныло или банально.
+
+Заголовок:
+{title}
+
+Аннотация:
+{summary}
+
+Сформируй:
+1. Новый цепляющий заголовок без ссылки
+2. 2–4 абзаца живого, интригующего, но информативного текста до 600 символов
+
+Формат ответа:
+ЗАГОЛОВОК
+
+ТЕКСТ
+"""
+    response = client.chat.completions.create(
+        model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+        messages=[{ "role": "user", "content": prompt }]
+    )
+
+    result = response.choices[0].message.content.strip()
+    if "\n\n" in result:
+        headline, body = result.split("\n\n", 1)
+    else:
+        headline, body = result, ""
+
+    return headline.strip(), body.strip()
+
