@@ -27,14 +27,14 @@ jobs:
       - name: Run main.py
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          TG_CHAT_ID_DRAFT: ${{ secrets.TG_CHAT_ID_DRAFT }}
           TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
         run: python src/main.py
 
-      - name: Commit and push updated sent_log.json
+      - name: Commit and push updated sent_log.json and cache.json
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add sent_log.json
-          git commit -m "Update sent_log.json" || echo "No changes"
+          git add sent_log.json cache.json
+          git commit -m "Update sent_log.json and cache.json" || echo "No changes"
           git push
