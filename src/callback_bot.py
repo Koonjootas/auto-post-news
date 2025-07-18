@@ -7,11 +7,14 @@ import json
 from telegram_sender import send_telegram_message_with_photo
 from rewrite import rewrite_news_with_alt_prompt
 
-TG_TOKEN = os.getenv("BOT_TOKEN")
-TG_CHAT_ID_DRAFT = os.getenv("DRAFT_CHAT_ID")
-TG_CHAT_ID_MAIN = os.getenv("MAIN_CHANNEL_ID")
+TG_TOKEN = os.getenv("TG_TOKEN")
+TG_CHAT_ID_DRAFT = os.getenv("TG_CHAT_ID_DRAFT")
+TG_CHAT_ID_MAIN = os.getenv("TG_CHAT_ID_MAIN")
 
 CACHE_PATH = "cache.json"
+
+assert TG_TOKEN is not None, "❌ BOT_TOKEN переменная не установлена!"
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
