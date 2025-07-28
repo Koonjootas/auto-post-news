@@ -6,36 +6,42 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1"
 )
 
-def extract_image_topic(title, summary):
-    prompt = f"""
-Ты — нейросеть, которая помогает выбрать один ключевой английский тег (по одному слову), который наилучшим образом описывает тему научной статьи для поиска подходящего изображения на Unsplash.
+def rewrite_news(title, summary):
+    prompt = f"""Переработай следующую аннотацию научной статьи в виде короткого, информативного поста для Telegram, пиши как экспертный копирайтер своим языком, обязательно расскажи о практической ценности.
 
-Формат ответа: только 1 английское слово, без точек, кавычек и пояснений.
-
-Заголовок:
+Вот заголовок оригинальной статьи:
 {title}
 
-Описание:
+Вот краткое описание:
 {summary}
+
+Сформируй:
+1. Новый короткий и выразительный заголовок (без ссылки)
+2. Затем — 3–4 абзаца пояснительного текста до 600 символов, с подходом как копирайтер
+
+Формат ответа:
+ЗАГОЛОВОК
+
+ТЕКСТ
 """
 
-    try:
-        response = client.chat.completions.create(
-            model="google/gemini-2.5-pro",
-            messages=[{
-                "role": "user",
-                "content": [{"type": "text", "text": prompt}]
-            }],
-            extra_headers={
-                "HTTP-Referer": "https://t.me/FuturePulse",
-                "X-Title": "FuturePulse Topic"
-            },
-            extra_body={}
-        )
-        topic = response.choices[0].message.content.strip().lower()
-        if " " in topic or not topic.isascii():
-            return None
-        return topic
-    except Exception as e:
-        print(f"❌ Ошибка в extract_image_topic: {e}")
-        return None
+    response = client.chat.completions.create(
+        model="google/gemini-2.5-pro",
+        messages=[{
+            "role": "user",
+            "content": [{"type": "text", "text": prompt}]
+        }],
+        extra_headers={
+            "HTTP-Referer": "https://t.me/FuturePulse",
+            "X-Title": "FuturePulse Rewrite"
+        },
+        extra_body={}
+    )
+
+    result = response.choices[0].message.content.strip()
+    if "\n\n" in result:
+        headline, body = result.split("\n\n", 1)
+    else:
+        headline, body = result, ""
+
+    return headline.strip(), body.strip()
