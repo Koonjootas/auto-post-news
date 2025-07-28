@@ -3,7 +3,6 @@ import os
 import requests
 from rss_reader import read_rss_sources, fetch_news
 from rewrite import rewrite_news
-from topic_selector import extract_image_topic
 from telegram_sender import send_telegram_message_with_photo, send_telegram_message_without_photo
 
 TELEGRAM_TOKEN = os.getenv("TG_TOKEN")
